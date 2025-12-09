@@ -1,0 +1,27 @@
+
+PERPLEXITY_API_KEY=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
+
+
+# Server configuration
+PORT=5000
+NODE_ENV=development
+
+MONGODB_URI=mongodb://localhost:27017/umenu
+# Database (SQLite file path)
+DATABASE_PATH=./umenu.db
+
+GOOGLE_PLACES_API_KEY=AIzaSyCyM4rGH09ck5dBSYrdnFs5e27vMxdePZA
+
+YELP_API_KEY=ri2LX2hEkalM3JzXOCCtQyrFhYE4f9wcKtTQaTMbC8z7m6FTSuSLnyo0hIGx--ir2jLt-IlRJ4mAErgpcvoVVMMAKJ4pisrlpNgU0FyxePM1HIOSaspEt7KPycMxaXYx
+
+
+const API_BASE_URL = 'http://localhost:3000/api';
+
+
+
+RESTAURANT_API_SOURCE=combined
+
+
+DEFAULT_SEARCH_RADIUS=25
+
+MAX_RESTAURANTS_PER_SEARCH=30

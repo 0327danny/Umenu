@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UMenu - AI Culinary Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .container {
+            flex: 1;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .controls-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .control-label {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+
+        .btn-secondary:hover {
+            background: #e8e8e8;
+        }
+
+        .distance-slider-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #e0e0e0;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .distance-value {
+            min-width: 50px;
+            text-align: right;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .recommendations-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .recommendation-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            border: 1px solid #f0f0f0;
+        }
+
+        .recommendation-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .source-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #e3f2fd;
+            color: #667eea;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            padding-right: 50px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .card-rating {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: 600;
+            color: #ff9800;
+        }
+
+        .card-info {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 12px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .card-info-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .card-description {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .dietary-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        .tag {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 8px 12px;
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #333;
+        }
+
+        .action-btn:hover {
+            background: #efefef;
+            border-color: #bbb;
+        }
+
+        .action-btn.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+        }
+
+        .action-btn.primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 9999;
+        }
+
+        .toast {
+            background: #323232;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 6px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease;
+            font-size: 14px;
+            max-width: 300px;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(40px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #333;
+        }
+
+        .modal-description {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .recommendations-feed {
+            grid-column: 1 / -1;
+        }
+
+        .section-title {
+            grid-column: 1 / -1;
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+            margin: 20px 0 0 0;
+        }
+
+        @media (max-width: 768px) {
+            .controls-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .recommendations-section {
+                grid-template-columns: 1fr;
+            }
+
+            .toast-container {
+                left: 20px;
+                right: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <h1>🍽️ UMenu</h1>
+            <p>AI-Powered Personalized Restaurant Recommendations</p>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Controls Section -->
+        <div class="controls-section">
+            <div class="controls-grid">
+                <div class="control-group">
+                    <label class="control-label">📍 Your Location</label>
+                    <button class="btn btn-primary" onclick="requestLocation()">
+                        Get My Location
+                    </button>
+                </div>
+                <div class="control-group">
+                    <label class="control-label">📏 Search Radius</label>
+                    <div class="distance-slider-container">
+                        <input type="range" id="distanceSlider" min="1" max="50" value="25" oninput="updateDistanceSlider(this.value)">
+                        <span class="distance-value"><span id="distanceValue">25</span> mi</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Food Preferences Section -->
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
+                <h3 style="font-size: 14px; font-weight: 600; color: #333; margin-bottom: 12px;">🍽️ Allergies & Dietary Preferences</h3>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                    <!-- Food Allergies -->
+                    <div>
+                        <label style="font-size: 12px; font-weight: 600; color: #666; display: block; margin-bottom: 6px;">⚠️ Allergies</label>
+                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
+                                <input type="checkbox" value="Peanuts" onchange="updatePreference('allergies', this)"> Peanuts
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
+                                <input type="checkbox" value="Tree Nuts" onchange="updatePreference('allergies', this)"> Tree Nuts
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
+                                <input type="checkbox" value="Shellfish" onchange="updatePreference('allergies', this)"> Shellfish
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
+                                <input type="checkbox" value="Dairy" onchange="updatePreference('allergies', this)"> Dairy
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
+                                <input type="checkbox" value="Gluten" onchange="updatePreference('allergies', this)"> Gluten
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
+                                <input type="checkbox" value="Soy" onchange="updatePreference('allergies', this)"> Soy
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
+                                <input type="checkbox" value="Sesame" onchange="updatePreference('allergies', this)"> Sesame
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Dietary Restrictions -->
+                    <div>
+                        <label style="font-size: 12px; font-weight: 600; color: #666; display: block; margin-bottom: 6px;">🥗 Diet Type</label>
+                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
+                                <input type="checkbox" value="Vegan" onchange="updatePreference('dietaryRestrictions', this)"> Vegan
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
+                                <input type="checkbox" value="Vegetarian" onchange="updatePreference('dietaryRestrictions', this)"> Vegetarian
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
+                                <input type="checkbox" value="Pescetarian" onchange="updatePreference('dietaryRestrictions', this)"> Pescetarian
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
+                                <input type="checkbox" value="Keto" onchange="updatePreference('dietaryRestrictions', this)"> Keto
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
+                                <input type="checkbox" value="Paleo" onchange="updatePreference('dietaryRestrictions', this)"> Paleo
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
+                                <input type="checkbox" value="Gluten Free" onchange="updatePreference('dietaryRestrictions', this)"> Gluten Free
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
+                                <input type="checkbox" value="Halal" onchange="updatePreference('dietaryRestrictions', this)"> Halal
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
+                                <input type="checkbox" value="Kosher" onchange="updatePreference('dietaryRestrictions', this)"> Kosher
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Health Goals -->
+                    <div>
+                        <label style="font-size: 12px; font-weight: 600; color: #666; display: block; margin-bottom: 6px;">❤️ Health Goals</label>
+                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
+                                <input type="checkbox" value="Heart Healthy" onchange="updatePreference('healthGoals', this)"> Heart Healthy
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
+                                <input type="checkbox" value="Low Sodium" onchange="updatePreference('healthGoals', this)"> Low Sodium
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
+                                <input type="checkbox" value="Weight Loss" onchange="updatePreference('healthGoals', this)"> Weight Loss
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
+                                <input type="checkbox" value="Muscle Building" onchange="updatePreference('healthGoals', this)"> Muscle Building
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
+                                <input type="checkbox" value="Diabetes Friendly" onchange="updatePreference('healthGoals', this)"> Diabetes Friendly
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="getPerplexityInsights()" style="margin-top: 12px;">
+                    ✨ Get AI Food Insights
+                </button>
+            </div>
+        </div>
+
+        <!-- Recommendations Section -->
+        <div class="recommendations-section">
+            <h2 class="section-title">🏪 Nearby Restaurants</h2>
+            <div class="recommendations-feed" id="recommendationsFeed">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📍</div>
+                    <p>Click "Get My Location" to find restaurants near you</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Location Permission Modal -->
+    <div id="locationModal" class="modal">
+        <div class="modal-content">
+            <h2 class="modal-title">📍 Location Access</h2>
+            <p class="modal-description">UMenu needs your location to find nearby restaurants and provide personalized recommendations based on your dietary preferences.</p>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="denyLocation()" style="flex: 1;">Not Now</button>
+                <button class="btn btn-primary" onclick="approveLocation()" style="flex: 1;">Allow Location</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Application State
+        const appState = {
+            userLocation: null,
+            restaurants: [],
+            userPreferences: {
+                allergies: [],
+                dietaryRestrictions: [],
+                healthGoals: [],
+                cuisinePreferences: [],
+                foodTypes: []
+            },
+            recommendations: null,
+            maxDistance: 25,
+            perplexityInsights: null
+        };
+
+        // API Keys - Configure these with your keys
+        window.GOOGLE_PLACES_API_KEY = 'AIzaSyCyM4rGH09ck5dBSYrdnFs5e27vMxdePZA';
+        window.YELP_API_KEY = 'ri2LX2hEkalM3JzXOCCtQyrFhYE4f9wcKtTQaTMbC8z7m6FTSuSLnyo0hIGx--ir2jLt-IlRJ4mAErgpcvoVVMMAKJ4pisrlpNgU0FyxePM1HIOSaspEt7KPycMxaXYx';
+        window.PERPLEXITY_API_KEY = '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';
+
+        // IMPORTANT: How to run this app
+        // This is a STATIC HTML file - no Node.js or npm needed!
+        //
+        // Option 1: Open directly in browser
+        //   Just double-click index.html or drag it into your browser
+        //
+        // Option 2: Use a simple static server
+        //   cd /Users/Danny_1/Documents/UMenu
+        //   npx serve .
+        //   Then open the URL it prints (usually http://localhost:3000 or 5173)
+        //
+        // Option 3: Use Python (if installed)
+        //   cd /Users/Danny_1/Documents/UMenu
+        //   python3 -m http.server 8000
+        //   Then open http://localhost:8000
+        //
+        // DO NOT use: npm start
+        // (There is no package.json in this folder - it's just static HTML)
+
+        // Get or create user ID
+        function getUserId() {
+            let id = localStorage.getItem('umenuUserId');
+            if (!id) {
+                id = 'user_' + Date.now();
+                localStorage.setItem('umenuUserId', id);
+            }
+            return id;
+        }
+
+        // Fetch real restaurants from Google Places and Yelp APIs
+        async function fetchRealRestaurants(latitude, longitude, radiusMiles) {
+            try {
+                console.log(`📍 Fetching real restaurants near ${latitude}, ${longitude} (${radiusMiles} mi)…`);
+
+                // Convert miles to meters
+                const radiusMeters = radiusMiles * 1609.34;
+
+                const results = [];
+
+                // Try Google Places API
+                try {
+                    const googleResponse = await fetch(
+                        `https://maps.googleapis.com/maps/api/place/nearbysearch/json?` +
+                        `location=${latitude},${longitude}&` +
+                        `radius=${radiusMeters}&` +
+                        `type=restaurant&` +
+                        `key=${window.GOOGLE_PLACES_API_KEY}`
+                    );
+                    const googleData = await googleResponse.json();
+
+                    if (googleData.results) {
+                        results.push(...googleData.results.map(place => ({
+                            id: place.place_id,
+                            name: place.name,
+                            latitude: place.geometry.location.lat,
+                            longitude: place.geometry.location.lng,
+                            rating: place.rating || 0,
+                            reviewCount: place.user_ratings_total || 0,
+                            address: place.vicinity || '',
+                            source: 'google_places',
+                            dietaryOptions: [],
+                            description: ''
+                        })));
+                        console.log(`✅ Google Places: Found ${googleData.results.length} restaurants`);
+                    }
+                } catch (googleErr) {
+                    console.warn('Google Places API error:', googleErr);
+                }
+
+                // Try Yelp Fusion API
+                try {
+                    const yelpResponse = await fetch(
+                        `https://api.yelp.com/v3/businesses/search?` +
+                        `latitude=${latitude}&` +
+                        `longitude=${longitude}&` +
+                        `radius=${Math.min(radiusMeters, 40000)}&` +
+                        `categories=restaurants&` +
+                        `limit=20`,
+                        {
+                            headers: {
+                                'Authorization': `Bearer ${window.YELP_API_KEY}`
+                            }
+                        }
+                    );
+                    const yelpData = await yelpResponse.json();
+
+                    if (yelpData.businesses) {
+                        results.push(...yelpData.businesses.map(business => ({
+                            id: business.id,
+                            name: business.name,
+                            latitude: business.coordinates.latitude,
+                            longitude: business.coordinates.longitude,
+                            rating: business.rating || 0,
+                            reviewCount: business.review_count || 0,
+                            address: business.location.address1 || '',
+                            source: 'yelp',
+                            dietaryOptions: business.categories ? business.categories.map(c => c.title) : [],
+                            description: business.url || ''
+                        })));
+                        console.log(`✅ Yelp: Found ${yelpData.businesses.length} restaurants`);
+                    }
+                } catch (yelpErr) {
+                    console.warn('Yelp API error:', yelpErr);
+                }
+
+                if (results.length === 0) {
+                    showToast('No restaurants found. Make sure API keys are configured.');
+                    return [];
+                }
+
+                console.log(`✅ Total: ${results.length} restaurants from both APIs`);
+                return results;
+            } catch (err) {
+                console.error('Error fetching restaurants:', err);
+                showToast('Error fetching restaurants. Check console for details.');
+                return [];
+            }
+        }
+
+        // Update recommendations by location
+        async function updateRecommendationsByLocation(latitude, longitude) {
+            appState.userLocation = { latitude, longitude };
+
+            // Get radius from slider
+            const slider = document.getElementById('distanceSlider');
+            if (slider) {
+                appState.maxDistance = parseInt(slider.value, 10) || appState.maxDistance;
+            }
+
+            // Fetch real restaurants
+            const restaurants = await fetchRealRestaurants(latitude, longitude, appState.maxDistance);
+            appState.restaurants = restaurants;
+
+            // Render cards
+            renderRestaurantCards(restaurants);
+
+            // Show count
+            const msg = `Found ${restaurants.length} restaurants within ${appState.maxDistance} miles`;
+            console.log(msg);
+            showToast(msg);
+        }
+
+        // Render restaurant cards
+        function renderRestaurantCards(restaurants) {
+            const feed = document.querySelector('.recommendations-feed');
+            if (!feed) return;
+
+            feed.innerHTML = '';
+
+            if (!restaurants.length) {
+                feed.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔍</div>
+                        <p>No restaurants found in this radius. Try increasing your search distance.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            restaurants.forEach(r => {
+                const distanceText = r.distance ? `${r.distance.toFixed(1)} mi away` : '';
+                const ratingText = r.rating ? `${r.rating.toFixed(1)}` : 'N/A';
+                const reviewsText = r.reviewCount ? `${r.reviewCount} reviews` : '';
+                const sourceLabel = r.source === 'yelp' ? 'Yelp' : (r.source === 'google_places' ? 'Google' : 'UMenu');
+
+                const card = document.createElement('div');
+                card.className = 'recommendation-card';
+
+                card.innerHTML = `
+                    <div class="source-badge">${sourceLabel}</div>
+                    <div class="card-header">
+                        <div class="card-title">${r.name}</div>
+                        <div class="card-rating">
+                            <span>⭐</span>
+                            <span>${ratingText}</span>
+                        </div>
+                    </div>
+                    <div class="card-info">
+                        ${distanceText ? `<div class="card-info-item">📍 ${distanceText}</div>` : ''}
+                        ${reviewsText ? `<div class="card-info-item">👥 ${reviewsText}</div>` : ''}
+                    </div>
+                    <div class="card-description">
+                        ${r.description || r.address || 'Quality dining experience'}
+                    </div>
+                    <div class="dietary-tags">
+                        ${(r.dietaryOptions || [])
+                            .map(opt => `<div class="tag">${opt}</div>`)
+                            .join('')}
+                    </div>
+                    <div class="card-actions">
+                        <button class="action-btn" onclick="openMapsForRestaurant('${encodeURIComponent(r.name)}', ${r.latitude}, ${r.longitude})">
+                            📍 Directions
+                        </button>
+                        <button class="action-btn primary" onclick="saveRestaurantToFavorites('${r.id}', '${r.name.replace(/'/g, "\\'")}')">
+                            ❤️ Save
+                        </button>
+                    </div>
+                `;
+
+                feed.appendChild(card);
+            });
+        }
+
+        // Open Google Maps
+        function openMapsForRestaurant(nameEncoded, lat, lon) {
+            const url = `https://www.google.com/maps/search/?api=1&query=${nameEncoded}&center=${lat},${lon}`;
+            window.open(url, '_blank');
+        }
+
+        // Save to favorites
+        function saveRestaurantToFavorites(id, name) {
+            const key = 'umenuFavorites';
+            const current = JSON.parse(localStorage.getItem(key) || '[]');
+            if (!current.includes(id)) {
+                current.push(id);
+                localStorage.setItem(key, JSON.stringify(current));
+                showToast(`${name} added to favorites`);
+            } else {
+                showToast(`${name} is already in favorites`);
+            }
+        }
+
+        // Location handling
+        function requestLocation() {
+            const modal = document.getElementById('locationModal');
+            modal.classList.add('active');
+        }
+
+        function approveLocation() {
+            document.getElementById('locationModal').classList.remove('active');
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const { latitude, longitude } = position.coords;
+                        updateRecommendationsByLocation(latitude, longitude);
+                        showToast('📍 Location found!');
+                    },
+                    (error) => {
+                        console.error('Geolocation error:', error);
+                        showToast('Error getting location');
+                    }
+                );
+            }
+        }
+
+        function denyLocation() {
+            document.getElementById('locationModal').classList.remove('active');
+            showToast('Location access denied');
+        }
+
+        function updateDistanceSlider(value) {
+            document.getElementById('distanceValue').textContent = value;
+            if (appState.userLocation) {
+                updateRecommendationsByLocation(appState.userLocation.latitude, appState.userLocation.longitude);
+            }
+        }
+
+        // Update food preferences
+        function updatePreference(type, checkbox) {
+            if (checkbox.checked) {
+                appState.userPreferences[type].push(checkbox.value);
+            } else {
+                appState.userPreferences[type] = appState.userPreferences[type].filter(p => p !== checkbox.value);
+            }
+            console.log(`Updated ${type}:`, appState.userPreferences[type]);
+        }
+
+        // Get AI insights from Perplexity
+        async function getPerplexityInsights() {
+            const cuisines = appState.userPreferences.cuisinePreferences.join(', ');
+            const foodTypes = appState.userPreferences.foodTypes.join(', ');
+            const allergies = appState.userPreferences.allergies.join(', ');
+            const dietary = appState.userPreferences.dietaryRestrictions.join(', ');
+            const healthGoals = appState.userPreferences.healthGoals.join(', ');
+
+            // Allow generating insights with any or no preferences selected
+            if (!allergies && !dietary && !healthGoals && !cuisines && !foodTypes) {
+                showToast('Select some preferences or just view nearby restaurants');
+                return;
+            }
+
+            try {
+                showToast('🤖 Generating AI insights...');
+
+                const prompt = `Based on the following food preferences, provide personalized restaurant recommendations and dining tips:
+- Cuisines: ${cuisines || 'No preference'}
+- Food Types: ${foodTypes || 'No preference'}
+- Allergies: ${allergies || 'None'}
+- Dietary Restrictions: ${dietary || 'None'}
+
+Provide 2-3 specific recommendations and tips in a concise format.`;
+
+                const response = await fetch('https://api.perplexity.ai/openai/', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${window.PERPLEXITY_API_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: 'pplx-70b-online',
+                        messages: [
+                            {
+                                role: 'user',
+                                content: prompt
+                            }
+                        ],
+                        max_tokens: 500
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.choices && data.choices[0].message) {
+                    appState.perplexityInsights = data.choices[0].message.content;
+                    showPerplexityModal(appState.perplexityInsights);
+                    showToast('✨ AI insights generated!');
+                } else {
+                    showToast('Error generating insights. Check API key.');
+                }
+            } catch (err) {
+                console.error('Perplexity API error:', err);
+                showToast('Error: ' + err.message);
+            }
+        }
+
+        // Show Perplexity insights in a modal
+        function showPerplexityModal(insights) {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10001;
+            `;
+
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 12px; padding: 32px; max-width: 600px; width: 90%; max-height: 70vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);">
+                    <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 16px; color: #333;">✨ AI Food Insights</h2>
+                    <div style="font-size: 14px; color: #666; line-height: 1.6; white-space: pre-wrap;">
+                        ${insights}
+                    </div>
+                    <button class="btn btn-primary" onclick="this.closest('div').parentElement.remove()" style="margin-top: 20px;">
+                        Close
+                    </button>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+        }
+
+        // Show toast notification
+        function showToast(message, duration = 3000) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, duration);
+        }
+
+        // Check API keys on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const googleKey = window.GOOGLE_PLACES_API_KEY;
+                const yelpKey = window.YELP_API_KEY;
+                const perplexityKey = window.PERPLEXITY_API_KEY;
+
+                console.log('🔑 API Keys Status:');
+                console.log('  Google Places:', googleKey && googleKey !== 'YOUR_GOOGLE_PLACES_API_KEY_HERE' ? '✅ Configured' : ' Missing');
+                console.log('  Yelp Fusion:', yelpKey && yelpKey !== 'YOUR_YELP_API_KEY_HERE' ? 'Configured' : ' Missing');
+                console.log('  Perplexity:', perplexityKey && perplexityKey !== 'YOUR_PERPLEXITY_API_KEY_HERE' ? ' Configured' : 'Missing');
+
+                if ((!googleKey || googleKey === 'YOUR_GOOGLE_PLACES_API_KEY_HERE') &&
+                    (!yelpKey || yelpKey === 'YOUR_YELP_API_KEY_HERE')) {
+                    showToast('⚠️ No API keys configured. Add them to the window variables.');
+                }
+            }, 500);
+        });
+    </script>
+</body>
+</html>
